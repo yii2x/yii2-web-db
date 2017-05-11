@@ -1,0 +1,29 @@
+{
+    "name": "yii2x/yii2-web-db",
+    "description": "YII2 Web DB",
+    "type": "library",
+    "keywords": ["yii2","extension","library","web","database"],
+    "license": "BSD-3-Clause",
+    "authors": [
+        {
+            "name": "Yuriy Basov",
+            "email": "basowy@gmail.com"
+        }
+    ],
+    "require": {
+        "yiisoft/yii2": "*"
+    },
+    
+    "repositories":[
+        {
+            "type": "git",
+            "url": "https://github.com/yii2x"
+        }
+    ],      
+    
+    "autoload": {
+        "psr-4": {
+            "yii2x\\web\\db\\": ""
+        }
+    }
+}
