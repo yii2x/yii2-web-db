@@ -1,12 +1,16 @@
 <?php
+/**
+ * @author Yuriy Basov <basowy@gmail.com>
+ * @since 1.0.0
+ */
 namespace yii2x\web\db\components;
 
 use Yii;
 use yii\web\UrlRuleInterface;
 use yii\db\Expression;
-use yii2x\web\db\models\Page;
+use yii2x\web\db\models\UriRoute;
 
-class PageUrlRule implements UrlRuleInterface
+class UriRouteRule implements UrlRuleInterface
 {
     /**
      * Parses the given request and returns the corresponding route and parameters.
@@ -22,13 +26,15 @@ class PageUrlRule implements UrlRuleInterface
         $parsedUrl = parse_url(Yii::$app->request->absoluteUrl);
         $pageUrlList = $this->getUrlParts($parsedUrl);    
 
-         
-        $page = $this->getPage($pageUrlList);
-        if(!empty($page->id)){
-            $route = 'site/page';
+       // Yii::trace("parseRequest getLayoutPath: " . Yii::$app->getLayoutPath(), __METHOD__);
+      //  Yii::trace("parseRequest getViewPath  : " . Yii::$app->getViewPath(), __METHOD__);      
+        $uriRoute = $this->getUriRoute($pageUrlList);
+        if(!empty($uriRoute->id)){
+            
+            $route = $uriRoute->auth_item;
             //$this->initUrlNameParams($page, $parsedUrl);
             Yii::trace("Request parsed with URL rule: " . $route, __METHOD__);
-            return [$route,['page'=> $page]];
+            return [$route,[]];
         }
 
         return false;
@@ -43,22 +49,26 @@ class PageUrlRule implements UrlRuleInterface
      */
     public function createUrl($manager, $route, $params)
     {
-       // return ltrim(\Yii::$app->site->page->urlName, '/');
-        if ($route !== 'site/index') {
-            return false;
-        }       
-        return '/index';
-    }
-    
-    public function getPage($pageUrlList){
-        $query = Page::find()
-                ->where(['type'=>'page','alias' => $pageUrlList])
-                ->orderBy([new Expression('FIELD(alias, "'.implode('","', $pageUrlList).'")')]);
+        $query = UriRoute::find()
+                ->where(['auth_item' => $route]);
     
 //echo $query->prepare(Yii::$app->db->queryBuilder)->createCommand()->rawSql;exit;
-        $this->page = $query->one();      
+        $uriRoute = $query->one();   
+        if(!empty($uriRoute->id)){
+            return $uriRoute->uri;
+        }
+        return false;
+    }
+    
+    public function getUriRoute($pageUrlList){
 
-        return $this->page;
+        $query = UriRoute::find()
+                ->where(['uri' => $pageUrlList])
+                ->orderBy([new Expression('FIELD(uri, "'.implode('","', $pageUrlList).'")')]);
+    
+//echo $query->prepare(Yii::$app->db->queryBuilder)->createCommand()->rawSql;exit;
+        $uriRoute = $query->one();      
+        return $uriRoute;
     }    
     public function getUrlParts($parsedUrl){
 

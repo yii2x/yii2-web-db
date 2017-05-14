@@ -5,11 +5,11 @@ namespace yii2x\web\db\models;
 use Yii;
 
 /**
- * This is the model class for table "page".
+ * This is the model class for table "html_block".
  *
  * @property integer $id
  * @property string $type
- * @property string $alias
+ * @property string $fileName
  * @property string $name
  * @property string $content
  * @property integer $layout
@@ -20,14 +20,14 @@ use Yii;
  * @property string $flushed_at
  * @property integer $flushed_by
  */
-class Page extends \yii\db\ActiveRecord
+class HtmlBlock extends \yii\db\ActiveRecord
 {
     /**
      * @inheritdoc
      */
     public static function tableName()
     {
-        return 'page';
+        return 'html_block';
     }
 
     /**
@@ -36,11 +36,11 @@ class Page extends \yii\db\ActiveRecord
     public function rules()
     {
         return [
-            [['content'], 'string'],
+            [['fileName', 'content'], 'string'],
             [['layout', 'created_by', 'updated_by', 'flushed_by'], 'integer'],
             [['created_at', 'updated_at', 'flushed_at'], 'safe'],
             [['type'], 'string', 'max' => 45],
-            [['alias', 'name'], 'string', 'max' => 200],
+            [['name'], 'string', 'max' => 200],
         ];
     }
 
@@ -52,7 +52,7 @@ class Page extends \yii\db\ActiveRecord
         return [
             'id' => 'ID',
             'type' => 'Type',
-            'alias' => 'Alias',
+            'fileName' => 'File Name',
             'name' => 'Name',
             'content' => 'Content',
             'layout' => 'Layout',
@@ -67,24 +67,24 @@ class Page extends \yii\db\ActiveRecord
 
     /**
      * @inheritdoc
-     * @return PageQuery the active query used by this AR class.
+     * @return HtmlBlockQuery the active query used by this AR class.
      */
     public static function find()
     {
-        return new PageQuery(get_called_class());
+        return new HtmlBlockQuery(get_called_class());
     }
     
     public function getLayout(){
-        $p = Page::find()->where(['id' => $this->layout])->one();
+        $p = HtmlBlock::find()->where(['id' => $this->layout])->one();
         if(!empty($p->id)){
             return $p;
         }
-        return new Page();
+        return new HtmlBlock();
     }
     
     public function touchFlush(){
         $this->flushed_by = (Yii::$app->user->isGuest)? null : Yii::$app->user->identity->id;
         $this->flushed_at = new \yii\db\Expression('UTC_TIMESTAMP()');
         $this->save();
-    }
+    }     
 }

@@ -1,39 +1,42 @@
 <?php
+/**
+ * @author Yuriy Basov <basowy@gmail.com>
+ * @since 1.0.0
+ */
 namespace yii2x\web\db\components;
 
 use Yii;
-use yii2x\web\db\models\Page;
+use yii2x\web\db\models\HtmlBlock;
 
 class View extends \yii\web\View
 {
-    public $layout;
-    public $page;
-
+      
     public function renderFile($viewFile, $params = [], $context = null)
     {   
-        $viewFile = Yii::getAlias($viewFile);
+        
+        if (!is_file($viewFile)) {
+            
+            $appPath = Yii::getAlias('@app');
+            $fileName = str_replace($appPath, "", $viewFile);
+            $htmlBlock = HtmlBlock::find()->where(['fileName' => $fileName])->one();
+ 
+            Yii::trace("createViewFile: " . $viewFile, __METHOD__); 
 
-        $page = $this->page;
-        if(strpos($viewFile, 'layouts') !== false){
-            $page = $this->layout;
-        }        
+            if($this->createViewFile($viewFile, $htmlBlock->content)){
+                $htmlBlock->touchFlush();
+            }      
+        }
 
-        if(!empty($page->id)){
-            $updatedAt = strtotime($page->updated_at);
-            $flushedAt = strtotime($page->flushed_at);
-
-            if (!is_file($viewFile) || $flushedAt < $updatedAt || empty($updatedAt)) {
-
-                if($this->renderViewFile($viewFile, $page->content)){
-                    $page->touchFlush();
-                }
-            }
-        }          
         return parent::renderFile($viewFile, $params, $context);
     }
     
-    public function renderViewFile($viewFile, $content){
+    public function createViewFile($viewFile, $content){
 
+        $path = explode(DIRECTORY_SEPARATOR,$viewFile);
+        array_pop($path);
+        $dir = implode($path, DIRECTORY_SEPARATOR);
+
+        \yii\helpers\FileHelper::createDirectory($dir);
         $handle = fopen($viewFile, "w");
         $size = fwrite($handle, $content);
         fclose($handle);  

@@ -3,11 +3,11 @@
 namespace yii2x\web\db\models;
 
 /**
- * This is the ActiveQuery class for [[Page]].
+ * This is the ActiveQuery class for [[UriRoute]].
  *
- * @see Page
+ * @see UriRoute
  */
-class PageQuery extends \yii\db\ActiveQuery
+class UriRouteQuery extends \yii\db\ActiveQuery
 {
     /*public function active()
     {
@@ -16,7 +16,7 @@ class PageQuery extends \yii\db\ActiveQuery
 
     /**
      * @inheritdoc
-     * @return Page[]|array
+     * @return UriRoute[]|array
      */
     public function all($db = null)
     {
@@ -25,7 +25,7 @@ class PageQuery extends \yii\db\ActiveQuery
 
     /**
      * @inheritdoc
-     * @return Page|array|null
+     * @return UriRoute|array|null
      */
     public function one($db = null)
     {
