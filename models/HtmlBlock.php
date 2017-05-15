@@ -86,5 +86,5 @@ class HtmlBlock extends \yii\db\ActiveRecord
         $this->flushed_by = (Yii::$app->user->isGuest)? null : Yii::$app->user->identity->id;
         $this->flushed_at = new \yii\db\Expression('UTC_TIMESTAMP()');
         $this->save();
-    }     
+    }      
 }

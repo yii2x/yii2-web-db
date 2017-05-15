@@ -8,9 +8,9 @@ namespace yii2x\web\db\components;
 use Yii;
 use yii\web\UrlRuleInterface;
 use yii\db\Expression;
-use yii2x\web\db\models\UriRoute;
+use yii2x\web\db\models\Request;
 
-class UriRouteRule implements UrlRuleInterface
+class RequestRule implements UrlRuleInterface
 {
     /**
      * Parses the given request and returns the corresponding route and parameters.
@@ -25,14 +25,11 @@ class UriRouteRule implements UrlRuleInterface
         $route = false;
         $parsedUrl = parse_url(Yii::$app->request->absoluteUrl);
         $pageUrlList = $this->getUrlParts($parsedUrl);    
-
-       // Yii::trace("parseRequest getLayoutPath: " . Yii::$app->getLayoutPath(), __METHOD__);
-      //  Yii::trace("parseRequest getViewPath  : " . Yii::$app->getViewPath(), __METHOD__);      
-        $uriRoute = $this->getUriRoute($pageUrlList);
+  
+        $uriRoute = $this->getUriRequest($pageUrlList);
         if(!empty($uriRoute->id)){
-            
+            $request->uriRequest = $uriRoute;            
             $route = $uriRoute->auth_item;
-            //$this->initUrlNameParams($page, $parsedUrl);
             Yii::trace("Request parsed with URL rule: " . $route, __METHOD__);
             return [$route,[]];
         }
@@ -49,7 +46,7 @@ class UriRouteRule implements UrlRuleInterface
      */
     public function createUrl($manager, $route, $params)
     {
-        $query = UriRoute::find()
+        $query = Request::find()
                 ->where(['auth_item' => $route]);
     
 //echo $query->prepare(Yii::$app->db->queryBuilder)->createCommand()->rawSql;exit;
@@ -60,11 +57,11 @@ class UriRouteRule implements UrlRuleInterface
         return false;
     }
     
-    public function getUriRoute($pageUrlList){
-
-        $query = UriRoute::find()
+    public function getUriRequest($pageUrlList){
+        $is_guest = 'is_guest ' . ((Yii::$app->user->isGuest)? 'desc': 'asc');
+        $query = Request::find()
                 ->where(['uri' => $pageUrlList])
-                ->orderBy([new Expression('FIELD(uri, "'.implode('","', $pageUrlList).'")')]);
+                ->orderBy([new Expression('FIELD(uri, "'.implode('","', $pageUrlList).'"), ' . $is_guest)]);
     
 //echo $query->prepare(Yii::$app->db->queryBuilder)->createCommand()->rawSql;exit;
         $uriRoute = $query->one();      

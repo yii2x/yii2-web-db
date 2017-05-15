@@ -10,7 +10,7 @@ use yii2x\web\db\models\HtmlBlock;
 
 class View extends \yii\web\View
 {
-      
+    
     public function renderFile($viewFile, $params = [], $context = null)
     {   
         
@@ -19,11 +19,11 @@ class View extends \yii\web\View
             $appPath = Yii::getAlias('@app');
             $fileName = str_replace($appPath, "", $viewFile);
             $htmlBlock = HtmlBlock::find()->where(['fileName' => $fileName])->one();
- 
-            Yii::trace("createViewFile: " . $viewFile, __METHOD__); 
-
-            if($this->createViewFile($viewFile, $htmlBlock->content)){
-                $htmlBlock->touchFlush();
+            
+            if(!empty($htmlBlock->id)){
+                if($this->createViewFile($viewFile, $htmlBlock->content)){
+                    $htmlBlock->touchFlush();
+                }                
             }      
         }
 
@@ -32,6 +32,8 @@ class View extends \yii\web\View
     
     public function createViewFile($viewFile, $content){
 
+        Yii::trace("createViewFile: " . $viewFile, __METHOD__); 
+        
         $path = explode(DIRECTORY_SEPARATOR,$viewFile);
         array_pop($path);
         $dir = implode($path, DIRECTORY_SEPARATOR);
